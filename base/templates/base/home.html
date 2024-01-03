@@ -1,0 +1,18 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<h1>Home Template</h1>
+
+<div>
+    <div>
+        {% for room in rooms %}
+            <div>
+                <h5>{{ room.id }} --- <a href="{% url 'room' room.id %}">{{ room.name }}</a></h5>
+                {% comment %} url 'room' room.id == it basically means "room/room.id" but we do it this way because we can change the endpoint name anytime but it will not effect this as we have mentioned name="room" in urls.py which basically tells that url name will be "room" but you can change the endpoint name {% endcomment %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
