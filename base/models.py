@@ -16,6 +16,9 @@ class Room(models.Model):
     updated = models.DateTimeField(auto_now=True) # like snapshot on every save of the room
     created = models.DateTimeField(auto_now_add=True)
     
+    class Meta:
+        ordering = ['-updated', '-created'] # here -updated/-created means that the latest created will be at the top and if we remove -, it will be ascending order 
+    
     def __str__(self):
         return self.name
 
