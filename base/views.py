@@ -1,12 +1,22 @@
 from django.shortcuts import render, redirect
-from .models import Room
+from django.db.models import Q
+from .models import Room, Topic
 from .forms import RoomForm
 
 # render method takes 2 parameter and 2 optional: 1 is the HTTP request and other is the template
 
 def home(request):
-    rooms = Room.objects.all() # query for room
-    context = {'rooms': rooms} # here we are getting all dictionaries in a list
+    q = request.GET.get('q') if request.GET.get('q') != None else ''
+    rooms = Room.objects.filter(
+        Q(topic__name__icontains=q) |
+        Q(name__icontains=q) |
+        Q(description__icontains=q)
+    ) # query for room. we are gonna search by these queries
+    
+    topics = Topic.objects.all()
+    room_count = rooms.count()
+    
+    context = {'rooms': rooms, 'topics': topics, 'room_count': room_count} # here we are getting all dictionaries in a list
     return render(request, 'base/home.html', context)
 
 def room(request, pk):
