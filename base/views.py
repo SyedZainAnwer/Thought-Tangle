@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -9,6 +11,8 @@ from .forms import RoomForm
 # render method takes 2 parameter and 2 optional: 1 is the HTTP request and other is the template
 
 def loginPage(request):
+    if request.user.is_authenticated:
+        return redirect('home')
     
     if request.method == 'POST':
         # these 2 values will be coming from front end
@@ -31,6 +35,12 @@ def loginPage(request):
     context = {}
     return render(request, 'base/login_register.html', context)
 
+
+def logoutUser(request):
+    logout(request) # this will delete the token from Cookies, which will logout the user
+    return redirect(home)
+
+
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     rooms = Room.objects.filter(
@@ -45,12 +55,15 @@ def home(request):
     context = {'rooms': rooms, 'topics': topics, 'room_count': room_count} # here we are getting all dictionaries in a list
     return render(request, 'base/home.html', context)
 
+
 def room(request, pk):
     room = Room.objects.get(id=pk)
     context = {'room': room} # here we are getting each single room according to it's id i.e each single dictionary
         
     return render(request, 'base/room.html', context)
 
+
+@login_required(login_url='login') # user cannot create a room until he's is logged-in
 # function to create a new Room
 def createRoom(request):
     form = RoomForm()
@@ -63,10 +76,15 @@ def createRoom(request):
     context = {'form': form}
     return render(request, 'base/room_form.html', context)
 
+
+@login_required(login_url='login') # user cannot update a room until he's is logged-in
 # function to update/edit specific room
 def updateRoom(request, pk):
     room = Room.objects.get(id=pk) # fetching the data of the specific room by its ID
     form = RoomForm(instance=room) # creating the RoomForm for that fetched room. instance keyword let the form being pre-filled with the existing data that the room had
+    
+    if request.user != room.host: # it does not allow any other user to edit someones room
+        return HttpResponse("You are not allowed here!!")
     
     if request.method == "POST":
         form = RoomForm(request.POST, instance=room)
@@ -77,11 +95,16 @@ def updateRoom(request, pk):
     context = {'form': form}
     return render(request, 'base/room_form.html', context)
 
+
+@login_required(login_url='login') # user cannot delete a room until he's is logged-in
 def deleteRoom(request, pk):
     room = Room.objects.get(id=pk)
     
     # another way to do that:
     # room = get_object_or_404(Room, id=pk)
+    
+    if request.user != room.host: # it does not allow any other user to delete someones room
+        return HttpResponse("You are not allowed here!!")
     
     if request.method == "POST":
         room.delete()
