@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
-from .models import Room, Topic
+from .models import Room, Topic, Message
 from .forms import RoomForm
 
 # render method takes 2 parameter and 2 optional: 1 is the HTTP request and other is the template
@@ -79,7 +79,17 @@ def home(request):
 
 def room(request, pk):
     room = Room.objects.get(id=pk)
-    context = {'room': room} # here we are getting each single room according to it's id i.e each single dictionary
+    room_messages = room.message_set.all().order_by('-created') # we access the child of room (messages) here. It will give us the set of messages that are related to the specific room. Order_by shows the latest messages first
+    
+    if request.method == "POST":
+        message = Message.objects.create(
+            user = request.user,
+            room = room,
+            body = request.POST.get('body')
+        )
+        return redirect('room', pk=room.id)
+    
+    context = {'room': room, 'room_messages': room_messages} # here we are getting each single room according to it's id i.e each single dictionary
 
     return render(request, 'base/room.html', context)
 
