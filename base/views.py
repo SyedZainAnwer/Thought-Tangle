@@ -79,7 +79,8 @@ def home(request):
 
 def room(request, pk):
     room = Room.objects.get(id=pk)
-    room_messages = room.message_set.all().order_by('-created') # we access the child of room (messages) here. It will give us the set of messages that are related to the specific room. Order_by shows the latest messages first
+    room_messages = room.message_set.all().order_by('-created') # we access the child of room (messages) here. It will give us the set of messages that are related to the specific room. Order_by shows the latest messages first. Many to one relation
+    participants = room.participants.all() # Many to Many relation
     
     if request.method == "POST":
         message = Message.objects.create(
@@ -89,7 +90,7 @@ def room(request, pk):
         )
         return redirect('room', pk=room.id)
     
-    context = {'room': room, 'room_messages': room_messages} # here we are getting each single room according to it's id i.e each single dictionary
+    context = {'room': room, 'room_messages': room_messages, "participants": participants} # here we are getting each single room according to it's id i.e each single dictionary
 
     return render(request, 'base/room.html', context)
 
