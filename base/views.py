@@ -72,14 +72,20 @@ def home(request):
     
     topics = Topic.objects.all()
     room_count = rooms.count()
+    room_messages = Message.objects.filter(Q(room__topic__name__icontains=q)) # we will see only the messages of the related topic in that room
     
-    context = {'rooms': rooms, 'topics': topics, 'room_count': room_count} # here we are getting all dictionaries in a list
+    context = { 
+            'rooms': rooms, 
+            'topics': topics, 
+            'room_count': room_count, 
+            'room_messages': room_messages 
+        } # here we are getting all dictionaries in a list
     return render(request, 'base/home.html', context)
 
 
 def room(request, pk):
     room = Room.objects.get(id=pk)
-    room_messages = room.message_set.all().order_by('-created') # we access the child of room (messages) here. It will give us the set of messages that are related to the specific room. Order_by shows the latest messages first. Many to one relation
+    room_messages = room.message_set.all() # we access the child of room (messages) here. It will give us the set of messages that are related to the specific room. Order_by shows the latest messages first. Many to one relation
     participants = room.participants.all() # Many to Many relation
     
     if request.method == "POST":
@@ -97,7 +103,7 @@ def room(request, pk):
     return render(request, 'base/room.html', context)
 
 
-@login_required(login_url='login') # user cannot create a room until he's is logged-in
+@login_required(login_url='login') # user cannot create a room until he's logged-in
 # function to create a new Room
 def createRoom(request):
     form = RoomForm()
@@ -111,7 +117,7 @@ def createRoom(request):
     return render(request, 'base/room_form.html', context)
 
 
-@login_required(login_url='login') # user cannot update a room until he's is logged-in
+@login_required(login_url='login') # user cannot update a room until he's logged-in
 # function to update/edit specific room
 def updateRoom(request, pk):
     room = Room.objects.get(id=pk) # fetching the data of the specific room by its ID
@@ -130,7 +136,7 @@ def updateRoom(request, pk):
     return render(request, 'base/room_form.html', context)
 
 
-@login_required(login_url='login') # user cannot delete a room until he's is logged-in
+@login_required(login_url='login') # user cannot delete a room until he's logged-in
 def deleteRoom(request, pk):
     room = Room.objects.get(id=pk)
     
@@ -145,4 +151,19 @@ def deleteRoom(request, pk):
         return redirect('home')
     
     context = { 'obj': room }
+    return render(request, 'base/delete.html', context)
+
+
+@login_required(login_url='login') # user cannot delete a message until he's logged-in
+def deleteMessage(request, pk):
+    message = Message.objects.get(id=pk)
+    
+    if request.user != message.user:
+        return HttpResponse("You are not allowed here!!")
+    
+    if request.method == "POST":
+        message.delete()
+        return redirect('home')
+    
+    context = { 'obj': message }
     return render(request, 'base/delete.html', context)
