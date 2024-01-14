@@ -12,59 +12,18 @@
 <div class="home-container">
 
     <div>
-        <div>
-            <h3>Browse Topics</h3>
-            <hr>
-
-            <div>
-                <a href="{% url 'home' %}">All</a>
-            </div>
-
-            {% for topic in topics %}
-                <div>
-                    <a href="{% url 'home' %}?q={{topic.name}}">{{topic.name}}</a>
-                </div>
-            {% endfor %}
-        </div>
+        {% include 'base/topics_component.html' %}
     </div>
 
     <div>
         <h5>{{room_count}} rooms available</h5>
         <a href="{% url 'create-room' %}">Create Room</a>
-        <div>
-            {% for room in rooms %}
-                <div>
 
-                    {% if request.user == room.host %}
-                        <a href="{% url 'update-room' room.id %}">Edit</a>
-                        <a href="{% url 'delete-room' room.id %}">Delete</a>
-                    {% endif %}
-
-                    <span>@{{ room.host.username }}</span>
-                    <h5>{{ room.id }} --- <a href="{% url 'room' room.id %}">{{ room.name }}</a></h5>
-                    {% comment %} url 'room' room.id == it basically means "room/room.id" but we do it this way because we can change the endpoint name anytime but it will not effect this as we have mentioned name="room" in urls.py which basically tells that url name will be "room" but you can change the endpoint name {% endcomment %}
-                    <small>{{ room.topic.name }}</small>
-                    <hr>
-                </div>
-            {% endfor %}
-        </div>
+        {% include 'base/feed_component.html' %}
     </div>
 
     <div>
-        <h3>Recent Activity</h3>
-        <hr>
-        {% for message in room_messages %}
-            <div>
-                <small>@{{ message.user }} {{ message.created|timesince }}</small>
-                <small>replied to "{{message.room}}"</small>
-
-                <p>{{message}}</p> {% comment %} it will display only the first 50 characters of the message. Refer to Message Model for this {% endcomment %}
-                {% if request.user == message.user %}
-                <a href="{% url 'delete-message' message.id %}">Delete</a>
-                {% endif %}
-                <hr>
-            </div>
-        {% endfor %}
+        {% include 'base/activity_component.html' %}
     </div>
 </div>
 
