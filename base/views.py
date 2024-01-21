@@ -117,6 +117,8 @@ def userProfile(request, pk):
 # function to create a new Room
 def createRoom(request):
     form = RoomForm()
+    topics = Topic.objects.all()
+    
     if request.method == "POST":
         form = RoomForm(request.POST)
         if form.is_valid():
@@ -125,7 +127,7 @@ def createRoom(request):
             room.save()
             return redirect('home')
     
-    context = {'form': form}
+    context = {'form': form, "topics": topics}
     return render(request, 'base/room_form.html', context)
 
 
@@ -134,6 +136,7 @@ def createRoom(request):
 def updateRoom(request, pk):
     room = Room.objects.get(id=pk) # fetching the data of the specific room by its ID
     form = RoomForm(instance=room) # creating the RoomForm for that fetched room. instance keyword let the form being pre-filled with the existing data that the room had
+    topics = Topic.objects.all()
     
     if request.user != room.host: # it does not allow any other user to edit someones room
         return HttpResponse("You are not allowed here!!")
@@ -144,7 +147,7 @@ def updateRoom(request, pk):
             form.save()
             return redirect('home')
     
-    context = {'form': form}
+    context = {'form': form, "topics": topics}
     return render(request, 'base/room_form.html', context)
 
 
