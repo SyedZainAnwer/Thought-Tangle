@@ -179,7 +179,7 @@ def deleteRoom(request, pk):
 
 
 @login_required(login_url='login') # user cannot delete a message until he's logged-in
-def deleteMessage(request, pk): 
+def deleteMessage(request, pk):
     message = Message.objects.get(id=pk)
     
     if request.user != message.user:
@@ -191,3 +191,8 @@ def deleteMessage(request, pk):
     
     context = { 'obj': message }
     return render(request, 'base/delete.html', context)
+
+
+@login_required(login_url='login')
+def updateUser(request):
+    return render(request, 'base/update_user.html')
