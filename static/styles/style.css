@@ -83,6 +83,10 @@ a {
   font-weight: 500;
 }
 
+.heading {
+  color: red;
+}
+
 .btn--link {
   border-radius: 0;
   padding: 0;

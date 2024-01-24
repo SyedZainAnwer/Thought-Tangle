@@ -37,7 +37,7 @@
 
         <div class="roomList__header">
           <div>
-            <h2>Study Rooms Hosted by dennis_ivy</a>
+            <h2>Study Rooms Hosted by {{ user.username }}</a>
             </h2>
           </div>
         </div>
@@ -47,6 +47,12 @@
 
       <!-- Activities Start -->
       {% include 'base/activity_component.html' %}
+      {% comment %} {% if user.room_messages.count > 0 %}
+      {% else %}
+      <div class="activities__header">
+        <h2>Recent Activities</h2>
+      </div>
+      {% endif %} {% endcomment %}
       <!-- Activities End -->
     </div>
   </main>
