@@ -5,5 +5,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('base.urls')), # any path that matches and empty string, go to base.urls file
-    path('api', include('base.api.urls'))
+    path('api/', include('base.api.urls'))
 ]
