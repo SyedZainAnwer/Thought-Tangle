@@ -1,5 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import User # built-in user class
+from django.contrib.auth.models import AbstractUser
+
+class User(AbstractUser):
+    pass
+
 
 class Topic(models.Model): # A topic can have multiple rooms, where as room can have 1 topic
     name = models.CharField(max_length=200)
